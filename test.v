@@ -30,7 +30,7 @@ module test( input wire clk,
 				output wire led);
 				
 	wire	clock;					// 可控速的clock	
-	wire	[3:0] btn_out;		
+	wire	[4:0] btn_out;		
 	reg	[31:0] freq;			// frWequency
 	reg	[15:0] display_num;		
 									
@@ -71,6 +71,7 @@ module test( input wire clk,
 	pbdebounce p1(clk, btn_in[1], btn_out[1]);
 	pbdebounce p2(clk, btn_in[2], btn_out[2]);
 	pbdebounce p3(clk, btn_in[3], btn_out[3]);
+	pbdebounce p4(clk, btn_in[4], btn_out[4]);
 	display m0(clk, display_num, anode[3:0], segment[7:0]);					//16位显示坐标
 	counter_1s ct(clk, freq[31:0], clock);			//计时器
 
