@@ -19,11 +19,11 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module counter_1s( input wire clk, 		
-						input wire [29:0] freq, 
+						input wire [31:0] freq, 
 						output reg clk_1s);
-	reg [30:0] cnt;
+	reg [31:0] cnt;
 	initial begin
-		cnt [30:0] <=0;
+		cnt [31:0] <=0;
 		clk_1s <= 0;
 	end
 	always @ (posedge clk) begin

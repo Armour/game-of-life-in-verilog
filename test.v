@@ -23,41 +23,41 @@ module test( input wire clk,
 				input wire [3:0] btn_in,			
 				output wire [3:0] anode, 	
 				output wire [7:0] segment,
-				output reg [31:0] freq,
 				output wire led);
 				
-	wire	clock;					// 可控速的clock		
-	wire	[3:0] btn_out;	
+	wire	clock;					// 可控速的clock	
+	wire	[3:0] btn_out;		
+	reg	[31:0] freq;			// frequency
 	reg	[15:0] position;	
-	reg	[15:0] display_num;				
+	reg	[15:0] display_num;		
 									
 	initial begin
-		freq = 32'd50_000_000;						// clock频率:50000000次改变
+		freq = 32'd500_000_000;						// clock频率:50000000次改变
 		position = 16'b0000_0000_0000_0000;		// 当前坐标 X Y 暂定[0-23, 0-31]
 	end
 	
 	always @(switch) begin							// 通过开关控制clock频率
 		if (switch[0] == 0) begin					// 0表示减速
 			case (switch[3:1])
-				3'b000 : freq <= 32'd 500;//_000_000;
-				3'b100 : freq <= 32'd1000;//_000_000;
-				3'b010 : freq <= 32'd1500;//_000_000;
-				3'b110 : freq <= 32'd2000;//_000_000;
-				3'b001 : freq <= 32'd2500;//_000_000;
-				3'b101 : freq <= 32'd3000;//_000_000;
-				3'b011 : freq <= 32'd3500;//_000_000;
-				3'b111 : freq <= 32'd4000;//_000_000;
+				3'b000 : freq <= 32'd 500_000_000;
+				3'b100 : freq <= 32'd1000_000_000;
+				3'b010 : freq <= 32'd1500_000_000;
+				3'b110 : freq <= 32'd2000_000_000;
+				3'b001 : freq <= 32'd2500_000_000;
+				3'b101 : freq <= 32'd3000_000_000;
+				3'b011 : freq <= 32'd3500_000_000;
+				3'b111 : freq <= 32'd4000_000_000;
 			endcase
 		end else begin									// 1表示加速
 			case (switch[3:1])
-				3'b000 : freq <= 32'd 500;//_000_000;
-				3'b100 : freq <= 32'd 250;//_000_000;
-				3'b010 : freq <= 32'd 133;//_333_333;
-				3'b110 : freq <= 32'd 125;//_000_000;
-				3'b001 : freq <= 32'd 100;//_000_000;
-				3'b101 : freq <= 32'd  83;//_333_333;
-				3'b011 : freq <= 32'd  71;//_428_571;
-				3'b111 : freq <= 32'd  62;//_500_000;
+				3'b000 : freq <= 32'd 500_000_000;
+				3'b100 : freq <= 32'd 250_000_000;
+				3'b010 : freq <= 32'd 133_333_333;
+				3'b110 : freq <= 32'd 125_000_000;
+				3'b001 : freq <= 32'd 100_000_000;
+				3'b101 : freq <= 32'd  83_333_333;
+				3'b011 : freq <= 32'd  71_428_571;
+				3'b111 : freq <= 32'd  62_500_000;
 			endcase
 		end
 	end
@@ -67,7 +67,7 @@ module test( input wire clk,
 	pbdebounce p2(clk, btn_in[2], btn_out[2]);
 	pbdebounce p3(clk, btn_in[3], btn_out[3]);
 	display m0(clk, display_num, anode[3:0], segment[7:0]);					//16位显示坐标
-	counter_1s ct(clk, freq[31:0], clock);									//计时器
+	counter_1s ct(clk, freq[31:0], clock);											//计时器
 
 	always @(posedge btn_out[0]) position[ 3: 0]  <= position[ 3: 0]  + 4'd1;			//op1的第1个数字+1
 	always @(posedge btn_out[1]) position[ 7: 4]  <= position[ 7: 4]  + 4'd1;			//op1的第2个数字+1
