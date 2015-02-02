@@ -25,16 +25,19 @@ module test( input wire clk,
 	output reg 	[3:0] position_x,
 	output reg 	[3:0] position_y,
 	output reg	[15:0] position,	
-	//output wire  map [0:15][0:15],
+	output reg  [255:0] map,
 				output wire [7:0] segment,
 				output wire led);
 				
 	wire	clock;					// 可控速的clock	
 	wire	[4:0] btn_out;		
-	reg	[31:0] freq;			// frWequency
+	reg	[31:0] freq;			// frequency
+	reg   [7:0] tempx;			// use to calculate where is (x,y) in  [255:0] position 
+	reg 	[7:0] tempy;			// use to calculate where is (x,y) in  [255:0] position 
 	reg	[15:0] display_num;		
 									
 	initial begin
+		map = 256'b0;									// 地图一开始是空的=w=
 		freq = 32'd500_000_000;						// clock频率:50000000次改变
 		position_x = 4'b0000;						// 当前坐标 X 
 		position_y = 4'b0000;						// 当前坐标 Y 
@@ -74,14 +77,13 @@ module test( input wire clk,
 	pbdebounce p4(clk, btn_in[4], btn_out[4]);
 	display m0(clk, display_num, anode[3:0], segment[7:0]);					//16位显示坐标
 	counter_1s ct(clk, freq[31:0], clock);			//计时器
-
 	//random(map[0:15][0:15]);
 	
 	assign led = clock;
 	
 	always @* begin
 		display_num <= position;
-	end
+	end	
 		
 	always @(btn_out[0] or btn_out[1]) begin			// x + 1  or x - 1
 		if (btn_out[0] & !btn_out[1])
@@ -115,6 +117,12 @@ module test( input wire clk,
 			position[15:12] <= position_y[3:0] - 4'b1010;
 			position[11:8] <= 4'b0001;
 		end
+	end
+	
+	always @(posedge btn_out[4]) begin					// change the status of position (x,y)
+		tempx = position_x;
+		tempy = position_y;
+		map[tempy * 16 + tempx] <= ~map[tempy * 16 + tempx];
 	end
 	
 endmodule

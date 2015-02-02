@@ -27,13 +27,14 @@ module test_position;
 	// Inputs
 	reg clk;
 	reg [3:0] switch;
-	reg [3:0] btn_in;
+	reg [4:0] btn_in;
 
 	// Outputs
 	wire [3:0] anode;
 	wire [3:0] position_x;
 	wire [3:0] position_y;
 	wire [15:0] position;
+	wire [255:0] map;
 	wire [7:0] segment;
 	wire led;
 
@@ -47,7 +48,8 @@ module test_position;
 		.position_y(position_y), 
 		.segment(segment), 
 		.led(led),
-		.position(position)
+		.position(position),
+		.map(map)
 	);
 
 	initial forever begin
@@ -61,34 +63,71 @@ module test_position;
 		// Initialize Inputs
 		switch = 0;
 		btn_in = 0;
-
-		// Wait 100 ns for global reset to finish
-		#5000000;
-		btn_in[0] = 1;
-		#1600000;
-		btn_in[0] = 0;
-		#5000000;
-		btn_in[0] = 1;
-		#1600000;
-		btn_in[0] = 0;
-		#5000000;
-		btn_in[1] = 1;
-		#1600000;
-		btn_in[1] = 0;
-		#5000000;
-		btn_in[1] = 1;
-		#1600000;
-		btn_in[1] = 0;
-		#5000000;
-		btn_in[1] = 1;
-		#1600000;
-		btn_in[1] = 0;
 		#5000000;
 		
-		btn_in = 4'b0011;
+		btn_in[0] = 1;
 		#1600000;
-		btn_in = 4'b0000;
+		btn_in[0] = 0;
 		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+		
+		btn_in[0] = 1;
+		#1600000;
+		btn_in[0] = 0;
+		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+		
+		btn_in[1] = 1;
+		#1600000;
+		btn_in[1] = 0;
+		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+		
+		btn_in[1] = 1;
+		#1600000;
+		btn_in[1] = 0;
+		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+		
+		btn_in[1] = 1;
+		#1600000;
+		btn_in[1] = 0;
+		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+			
+		btn_in[3] = 1;
+		#1600000;
+		btn_in[3] = 0;
+		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+			
+		btn_in[3] = 1;
+		#1600000;
+		btn_in[3] = 0;
+		#5000000;
+			btn_in[4] = 1;
+			#1600000;
+			btn_in[4] = 0;
+			#5000000;
+		
 		// Add stimulus here
 
 	end
