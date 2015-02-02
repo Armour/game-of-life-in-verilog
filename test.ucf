@@ -1,0 +1,26 @@
+NET "clk" LOC = "V10";
+NET "led" LOC = "T11";
+
+NET "switch[0]" LOC = "T5";
+NET "switch[1]" LOC = "V8";
+NET "switch[2]" LOC = "U8";
+NET "switch[3]" LOC = "N8";
+
+NET "btn_in[0]"	LOC="C4";			// À©Õ¹°å°´¼ü
+NET "btn_in[1]"	LOC="B8";
+NET "btn_in[2]"	LOC="D9";
+NET "btn_in[3]"	LOC="C9";
+
+NET "anode[0]"   	LOC="N16";
+NET "anode[1]"   	LOC="N15";
+NET "anode[2]"   	LOC="P18";
+NET "anode[3]"   	LOC="P17";
+
+NET "segment[0]"	LOC="T17";
+NET "segment[1]"	LOC="T18";
+NET "segment[2]"	LOC="U17";
+NET "segment[3]"	LOC="U18";
+NET "segment[4]"	LOC="M14";
+NET "segment[5]"	LOC="N14";
+NET "segment[6]"	LOC="L14";
+NET "segment[7]"	LOC="M13";
