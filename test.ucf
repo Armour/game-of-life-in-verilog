@@ -6,10 +6,11 @@ NET "switch[1]" LOC = "V8";
 NET "switch[2]" LOC = "U8";
 NET "switch[3]" LOC = "N8";
 
-NET "btn_in[0]"	LOC="C4";			// 扩展板按键
-NET "btn_in[1]"	LOC="B8";
-NET "btn_in[2]"	LOC="D9";
+NET "btn_in[0]"	LOC="D9";			// 扩展板按键
+NET "btn_in[1]"	LOC="C4";
+NET "btn_in[2]"	LOC="A8";
 NET "btn_in[3]"	LOC="C9";
+NET "btn_in[4]"	LOC="B8";
 
 NET "anode[0]"   	LOC="N16";
 NET "anode[1]"   	LOC="N15";
@@ -24,3 +25,18 @@ NET "segment[4]"	LOC="M14";
 NET "segment[5]"	LOC="N14";
 NET "segment[6]"	LOC="L14";
 NET "segment[7]"	LOC="M13";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

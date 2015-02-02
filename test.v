@@ -20,20 +20,25 @@
 //////////////////////////////////////////////////////////////////////////////////
 module test( input wire clk, 
 				input wire [3:0] switch, 
-				input wire [3:0] btn_in,			
+				input wire [4:0] btn_in,			
 				output wire [3:0] anode, 	
+	output reg 	[3:0] position_x,
+	output reg 	[3:0] position_y,
+	output reg	[15:0] position,	
+	//output wire  map [0:15][0:15],
 				output wire [7:0] segment,
 				output wire led);
 				
 	wire	clock;					// 可控速的clock	
 	wire	[3:0] btn_out;		
-	reg	[31:0] freq;			// frequency
-	reg	[15:0] position;	
+	reg	[31:0] freq;			// frWequency
 	reg	[15:0] display_num;		
 									
 	initial begin
 		freq = 32'd500_000_000;						// clock频率:50000000次改变
-		position = 16'b0000_0000_0000_0000;		// 当前坐标 X Y 暂定[0-23, 0-31]
+		position_x = 4'b0000;						// 当前坐标 X 
+		position_y = 4'b0000;						// 当前坐标 Y 
+		position = 16'b0000_0000_0000_0000;		// 当前坐标 X,Y 
 	end
 	
 	always @(switch) begin							// 通过开关控制clock频率
@@ -67,12 +72,9 @@ module test( input wire clk,
 	pbdebounce p2(clk, btn_in[2], btn_out[2]);
 	pbdebounce p3(clk, btn_in[3], btn_out[3]);
 	display m0(clk, display_num, anode[3:0], segment[7:0]);					//16位显示坐标
-	counter_1s ct(clk, freq[31:0], clock);											//计时器
+	counter_1s ct(clk, freq[31:0], clock);			//计时器
 
-	always @(posedge btn_out[0]) position[ 3: 0]  <= position[ 3: 0]  + 4'd1;			//op1的第1个数字+1
-	always @(posedge btn_out[1]) position[ 7: 4]  <= position[ 7: 4]  + 4'd1;			//op1的第2个数字+1
-	always @(posedge btn_out[2]) position[ 11: 8] <= position[11: 8]  + 4'd1;			//op1的第3个数字+1
-	always @(posedge btn_out[3]) position[ 15: 12]<= position[15: 12] + 4'd1;			//op1的第4个数字+1
+	//random(map[0:15][0:15]);
 	
 	assign led = clock;
 	
@@ -80,54 +82,38 @@ module test( input wire clk,
 		display_num <= position;
 	end
 		
-	/*
-	always @(posedge btn_out[0]) begin			// x + 1
-		position[7:4] <= position[7:4] + 4'b1;
-		if (position[7:4] == 4'b1010) begin
-			position[7:4] <= 4'b0;
-			position[3:0] <= position[3:0] + 4'b1;
-		end else
-		if (position[7:4] == 4'b0100 && position[3:0] == 4'b0010) begin
-			position[7:4] <= 4'b0;
-			position[3:0] <= 4'b0;
+	always @(btn_out[0] or btn_out[1]) begin			// x + 1  or x - 1
+		if (btn_out[0] & !btn_out[1])
+			position_x <= position_x + 4'b1;
+		else if (!btn_out[0] & btn_out[1])
+			position_x <= position_x - 4'b1;
+	end
+	
+	always @(btn_out[2] or btn_out[3]) begin			// y + 1  or y - 1
+		if (btn_out[2] & !btn_out[3])
+			position_y <= position_y + 4'b1;
+		else if (!btn_out[2] & btn_out[3])
+			position_y <= position_y - 4'b1;
+	end
+
+	always @(position_x) begin								// display x
+		if (position_x < 4'b1010) begin
+			position[7:4] <= position_x[3:0];
+			position[3:0] <= 4'b0000;
+		end else begin
+			position[7:4] <= position_x[3:0] - 4'b1010;
+			position[3:0] <= 4'b0001;
 		end
 	end
 	
-	always @(posedge btn_out[1]) begin			 // x - 1
-		position[7:4] <= position[7:4] - 4'b1;
-		if (position[7:4] == 4'b1111 && position[3:0] != 4'b0) begin
-			position[7:4] <= 4'b1001;
-			position[3:0] <= position[3:0] - 4'b1;
-		end else
-		if (position[7:4] == 4'b1111 && position[3:0] == 4'b0) begin
-			position[7:4] <= 4'b0011;
-			position[3:0] <= 4'b0010;
-		end
-	end 
-	
-	always @(posedge btn_out[2]) begin			// y + 1
-		position[15:12] <= position[15:12] + 4'b1;
-		if (position[15:12] == 4'b1010) begin
-			position[15:12] <= 4'b0;
-			position[11:8] <= position[11:8] + 4'b1;
-		end else
-		if (position[15:12] == 4'b0010 && position[11:8] == 4'b0011) begin
-			position[15:12] <= 4'b0;
-			position[11:8] <= 4'b0;
+	always @(position_y) begin								// display y
+		if (position_y < 4'b1010) begin
+			position[15:12] <= position_y[3:0];
+			position[11:8] <= 4'b0000;
+		end else begin
+			position[15:12] <= position_y[3:0] - 4'b1010;
+			position[11:8] <= 4'b0001;
 		end
 	end
-	
-	always @(posedge btn_out[3]) begin			// y - 1
-		position[15:12] <= position[15:12] - 4'b1;
-		if (position[15:12] == 4'b1111 && position[11:8] != 4'b0) begin
-			position[15:12] <= 4'b0;
-			position[11:8] <= position[11:8] - 4'b1;
-		end else
-		if (position[15:12] == 4'b1111 && position[11:8] == 4'b0) begin
-			position[15:12] <= 4'b1;
-			position[11:8] <= 4'b0011;
-		end
-	end
-	*/
 	
 endmodule
