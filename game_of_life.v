@@ -28,7 +28,7 @@ module game_of_life( input wire clk,
 	//output reg  [255:0] map,
 	//output reg  [767:0] springs,
 				output wire [7:0] segment,
-				output wire led);
+				output wire led_frequency);
 				
 	wire	clock;					// a clock with changeable frequency
 	wire	[4:0] btn_out;			// the signal of botton after debounced
@@ -57,34 +57,35 @@ module game_of_life( input wire clk,
 	
 	initial begin
 		map <= 256'b0;											// initialize the map to empty
-		freq <= 32'd500_000_000;							// initialize frequency to be 500000000 times (between change of status)
+		freq <= 32'd25_000_000;								// initialize frequency to be 500000000 times (between change of status)
 		position_x <= 4'b0000;								// position x 
 		position_y <= 4'b0000;								// position y
 		position <= 16'b0000_0000_0000_0000;			// position x, y (display use decimal)
+		tempr <= 5;
 	end
 	
 	always @(switch) begin									// control the frequency of clock through switch
 		if (switch[0] == 0) begin							// 0 means slower
 			case (switch[3:1])
-				3'b000 : freq <= 32'd 500_000_000;
-				3'b100 : freq <= 32'd1000_000_000;
-				3'b010 : freq <= 32'd1500_000_000;
-				3'b110 : freq <= 32'd2000_000_000;
-				3'b001 : freq <= 32'd2500_000_000;
-				3'b101 : freq <= 32'd3000_000_000;
-				3'b011 : freq <= 32'd3500_000_000;
-				3'b111 : freq <= 32'd4000_000_000;
+				3'b000 : freq <= 32'd 25_000_000;
+				3'b100 : freq <= 32'd 50_000_000;
+				3'b010 : freq <= 32'd 75_000_000;
+				3'b110 : freq <= 32'd100_000_000;
+				3'b001 : freq <= 32'd125_000_000;
+				3'b101 : freq <= 32'd150_000_000;
+				3'b011 : freq <= 32'd175_000_000;
+				3'b111 : freq <= 32'd200_000_000;
 			endcase
 		end else begin											// 1 means faster
 			case (switch[3:1])
-				3'b000 : freq <= 32'd 500_000_000;
-				3'b100 : freq <= 32'd 250_000_000;
-				3'b010 : freq <= 32'd 133_333_333;
-				3'b110 : freq <= 32'd 125_000_000;
-				3'b001 : freq <= 32'd 100_000_000;
-				3'b101 : freq <= 32'd  83_333_333;
-				3'b011 : freq <= 32'd  71_428_571;
-				3'b111 : freq <= 32'd  62_500_000;
+				3'b000 : freq <= 32'd 25_000_000;
+				3'b100 : freq <= 32'd 12_500_000;
+				3'b010 : freq <= 32'd  8_333_333;
+				3'b110 : freq <= 32'd  6_250_000;
+				3'b001 : freq <= 32'd  5_000_000;
+				3'b101 : freq <= 32'd  4_166_666;
+				3'b011 : freq <= 32'd  3_555_555;
+				3'b111 : freq <= 32'd  3_125_000;
 			endcase
 		end
 	end
@@ -99,47 +100,41 @@ module game_of_life( input wire clk,
 	
 	counter_1s ct(clk, freq[31:0], clock);				// clock with different frequency
 	
-	assign led = clock;										// led flash in the same frequency with clock
-		
-	always @* begin						
+	assign led_frequency = clock;										// led flash in the same frequency with clock
+	
+	always @* begin			
 		display_num <= position;							// display the position
 	end	
-		
-	always @(btn_out[0] or btn_out[1]) begin			// x + 1  or x - 1
-		if (btn_out[0] & !btn_out[1])
-			position_x <= position_x + 4'b1;				// btn[0]  => x + 1
-		else if (!btn_out[0] & btn_out[1])
-			position_x <= position_x - 4'b1;				// btn[1]  => x - 1
+
+	always @(posedge btn_out[0]) begin					// btn[0]  => x + 1
+			position_x = position_x + 4'b1;
 	end
-	
-	always @(btn_out[2] or btn_out[3]) begin			// y + 1  or y - 1
-		if (btn_out[2] & !btn_out[3])
-			position_y <= position_y + 4'b1;				// btn[2]  => y + 1
-		else if (!btn_out[2] & btn_out[3])
-			position_y <= position_y - 4'b1;				// btn[3]  => y - 1
+
+	always @(posedge btn_out[2]) begin					// btn[2]  => y + 1
+			position_y = position_y + 4'b1;
 	end
 
 	always @(position_x) begin								// display x with decimal
 		if (position_x < 4'b1010) begin
-			position[7:4] <= position_x[3:0];
-			position[3:0] <= 4'b0000;
+			position[11:8] <= position_x[3:0];
+			position[15:12] <= 4'b0000;
 		end else begin
-			position[7:4] <= position_x[3:0] - 4'b1010;
-			position[3:0] <= 4'b0001;
+			position[11:8] <= position_x[3:0] - 4'b1010;
+			position[15:12] <= 4'b0001;
 		end
 	end
 	
 	always @(position_y) begin								// display y with decimal
 		if (position_y < 4'b1010) begin
-			position[15:12] <= position_y[3:0];
-			position[11:8] <= 4'b0000;
+			position[3:0] <= position_y[3:0];
+			position[7:4] <= 4'b0000;
 		end else begin
-			position[15:12] <= position_y[3:0] - 4'b1010;
-			position[11:8] <= 4'b0001;
+			position[3:0] <= position_y[3:0] - 4'b1010;
+			position[7:4] <= 4'b0001;
 		end
 	end
 	
-	always @(posedge btn_out[4]) begin					// change the status of position (x,y)
+	always @(posedge btn_out[4]) begin					// change the status of position (x,y)			
 		tempx = position_x;
 		tempy = position_y;
 		map[tempy * 16 + tempx] = ~map[tempy * 16 + tempx];			// change to opposite status
@@ -150,7 +145,8 @@ module game_of_life( input wire clk,
 		for (i = 0; i < 256; i = i + 1 ) begin: random_map
 			always @(posedge switch[4]) begin				// switch[4] is the random switch
 				if (switch[5]) begin								// must in "stop" mode 
-					tempr = {$random} % 10;
+					//tempr = {$random} % 10;
+					tempr = ((tempr << (clk == 1)) + 1 ) % 10; 
 					if (tempr < 4)									// 40% to be 1 (random)
 						map[i] = 1;
 					else 
