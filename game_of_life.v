@@ -48,9 +48,9 @@ module game_of_life( input wire clk,
 	reg 	[31:0] btn1;
 	reg 	[31:0] btn2;
 	reg 	[31:0] btn3;
-	reg 	[31:0] btn4;
 	reg   [255:0] map;			// the map of "game of life"
 	reg	[8:0] i;					// iterator
+	reg 	flag = 0;				// the flag of botton[4]
 	
 	initial begin
 		tempr = 5;
@@ -96,7 +96,7 @@ module game_of_life( input wire clk,
 	
 	display m0(clk, display_num, anode[3:0], segment[7:0]);			//display position x, y
 	
-	counter_1s ct(clk, freq[31:0], clock);				// clock with different frequency
+	counter_1s ct(clk, freq[31:0], clock);							// clock with different frequency
 	
 	assign led_frequency = clock;										// led flash in the same frequency with clock
 	assign led_status = map[tempy * 16 + tempx];					// led flash in the same frequency with clock
@@ -156,13 +156,15 @@ module game_of_life( input wire clk,
 		
 	end
 	
+	
 	always @(posedge clk) begin
 	
-		if (btn_out[4]) btn4 = btn4 + 1;
-		if (btn4 >= 12_000_000) begin						// change the status of position (x,y)
-			btn4 = 0;
-			map[tempy * 16 + tempx] = ~map[tempy * 16 + tempx];			// change to opposite status
-		end
+		if (btn_out[4]) begin
+			if (flag == 0) begin						// change the status of position (x,y)
+				flag = 1;
+				map[tempy * 16 + tempx] = ~map[tempy * 16 + tempx];			// change to opposite status
+			end
+		end else flag = 0;
 	
 		if (switch[5] == 1 && switch[4] == 1) 				// switch[4] is the random switch and it must in "stop" mode 
 			random_count = random_count + 1;
