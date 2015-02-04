@@ -1,5 +1,6 @@
 NET "clk" LOC = "V10";
 NET "led_frequency" LOC = "T11";
+NET "led_status" LOC = "U16";
 
 NET "switch[0]" LOC = "V8";
 NET "switch[1]" LOC = "U8";

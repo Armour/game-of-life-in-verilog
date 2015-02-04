@@ -26,9 +26,10 @@ module game_of_life( input wire clk,
 	//output reg 	[3:0] position_y,
 	//output reg	[15:0] position,	
 	//output reg  [255:0] map,
-	//output reg  [767:0] springs,
+	//output reg   [767:0] springs,
 				output wire [7:0] segment,
-				output wire led_frequency);
+				output wire led_frequency,
+				output wire led_status);
 				
 	wire	clock;					// a clock with changeable frequency
 	wire	[4:0] btn_out;			// the signal of botton after debounced
@@ -41,27 +42,24 @@ module game_of_life( input wire clk,
 	reg 	[3:0] position_y;		// position Y
 	reg	[15:0] position;		// position "x, y" in decimal formal
 	reg	[15:0] display_num;	// used for display
+	reg	[31:0] random_count;	// used for random switch counting
+	reg	[31:0] generate_count;	// used for each generation counting
+	reg 	[31:0] btn0;			// used for botton counting
+	reg 	[31:0] btn1;
+	reg 	[31:0] btn2;
+	reg 	[31:0] btn3;
+	reg 	[31:0] btn4;
 	reg   [255:0] map;			// the map of "game of life"
-	
-	//reg 	[767:0] springs;										// used for spring test
-	/*generate															// used for spring test
-		genvar k;
-		for (k = 0; k < 256; k = k + 1 ) begin: fuck_spring
-			always @(*) begin
-				springs[k*3] = spring[k][0];
-				springs[k*3+1] = spring[k][1];
-				springs[k*3+2] = spring[k][2];
-			end
-		end
-	endgenerate*/
+	reg	[8:0] i;					// iterator
 	
 	initial begin
+		tempr = 5;
+		random_count = 0;
 		map <= 256'b0;											// initialize the map to empty
 		freq <= 32'd25_000_000;								// initialize frequency to be 500000000 times (between change of status)
 		position_x <= 4'b0000;								// position x 
 		position_y <= 4'b0000;								// position y
 		position <= 16'b0000_0000_0000_0000;			// position x, y (display use decimal)
-		tempr <= 5;
 	end
 	
 	always @(switch) begin									// control the frequency of clock through switch
@@ -101,19 +99,12 @@ module game_of_life( input wire clk,
 	counter_1s ct(clk, freq[31:0], clock);				// clock with different frequency
 	
 	assign led_frequency = clock;										// led flash in the same frequency with clock
+	assign led_status = map[tempy * 16 + tempx];					// led flash in the same frequency with clock
 	
 	always @* begin			
 		display_num <= position;							// display the position
 	end	
-
-	always @(posedge btn_out[0]) begin					// btn[0]  => x + 1
-			position_x = position_x + 4'b1;
-	end
-
-	always @(posedge btn_out[2]) begin					// btn[2]  => y + 1
-			position_y = position_y + 4'b1;
-	end
-
+	
 	always @(position_x) begin								// display x with decimal
 		if (position_x < 4'b1010) begin
 			position[11:8] <= position_x[3:0];
@@ -134,29 +125,73 @@ module game_of_life( input wire clk,
 		end
 	end
 	
-	always @(posedge btn_out[4]) begin					// change the status of position (x,y)			
-		tempx = position_x;
-		tempy = position_y;
-		map[tempy * 16 + tempx] = ~map[tempy * 16 + tempx];			// change to opposite status
+	always @(posedge clk) begin
+		tempx <= position_x;
+		tempy <= position_y;
+		
+		if (btn_out[0]) btn0 = btn0 + 1;
+		if (btn_out[1]) btn1 = btn1 + 1;
+		if (btn_out[2]) btn2 = btn2 + 1;
+		if (btn_out[3]) btn3 = btn3 + 1;
+		
+		if (btn0 >= 12_000_000) begin						// btn[0]  => x + 1
+			btn0 = 0;
+			position_x = position_x + 4'b1; 
+		end
+		
+		if (btn1 >= 12_000_000) begin						// btn[0]  => x - 1
+			btn1 = 0;
+			position_x = position_x - 4'b1;
+		end
+		
+		if (btn2 >= 12_000_000) begin						// btn[2]  => y + 1
+			btn2 = 0;
+			position_y = position_y + 4'b1; 
+		end
+		
+		if (btn3 >= 12_000_000) begin						// btn[2]  => y - 1
+			btn3 = 0;
+			position_y = position_y - 4'b1;
+		end
+		
 	end
 	
-	generate														// use generate-for-loop to declare "random initialize" (more elegent)
-		genvar i;
-		for (i = 0; i < 256; i = i + 1 ) begin: random_map
-			always @(posedge switch[4]) begin				// switch[4] is the random switch
-				if (switch[5]) begin								// must in "stop" mode 
-					//tempr = {$random} % 10;
-					tempr = ((tempr << (clk == 1)) + i % 7 + map[i] + clock) % 10; 
+	always @(posedge clk) begin
+	
+		if (btn_out[4]) btn4 = btn4 + 1;
+		if (btn4 >= 12_000_000) begin						// change the status of position (x,y)
+			btn4 = 0;
+			map[tempy * 16 + tempx] = ~map[tempy * 16 + tempx];			// change to opposite status
+		end
+	
+		if (switch[5] == 1 && switch[4] == 1) 				// switch[4] is the random switch and it must in "stop" mode 
+			random_count = random_count + 1;
+		if (random_count >= 100_000_000) begin				// maintain for enough time
+			random_count = 0;
+			for (i = 0; i < 256; i = i + 1) begin: intial_randomly
+					//tempr = {$random} % 10;					// only used when test
+					tempr = (i + generate_count[3] +generate_count[8]) % 10;
 					if (tempr < 4)									// 40% to be 1 (random)
 						map[i] = 1;
 					else 
 						map[i] = 0;									// 60% to be 0 (random)
-				end
 			end
 		end
-	endgenerate
-	
-	always @(switch[6] or switch[7]) begin
+		
+		if (switch[5] == 0) 								// if in "run" mode
+			generate_count = generate_count + 1;
+		if (generate_count >= freq * 2) begin		// maintain for enough time
+			generate_count = 0;
+			for (i = 0; i < 256; i = i + 1) begin: new_generation
+				if ((spring[i] == 2 || spring[i] == 3) && map[i] == 1)
+					map[i] = 1;								// live
+				else if (spring[i] == 3 && map[i] == 0)
+					map[i] = 1;								// new life
+				else 
+					map[i] = 0;		 						// die
+			end
+		end
+			
 		if (switch[5]) begin														// must in "stop" mode 
 			if (switch[6] == 1 && switch[7] == 0) begin					// initialize to "Glider" status
 				map = 256'b0;
@@ -231,8 +266,8 @@ module game_of_life( input wire clk,
 				map[219] = 1'b1;
 			end
 		end
-	end	
-		
+	end
+	
 	generate															// use generate-for-loop to calculate next status (more elegent)
 		genvar j;
 		for (j = 0; j < 256; j = j + 1 ) begin: next_status
@@ -245,14 +280,6 @@ module game_of_life( input wire clk,
 										+ map[up_right(j)] 
 										+ map[down_left(j)] 
 										+ map[down_right(j)];
-				if (!switch[5]) begin							// switch[5] means stop/run
-					if ((spring[j] == 2 || spring[j] == 3) && map[j] == 1)
-						map[j] <= 1;								// live
-					else if (spring[j] == 3 && map[j] == 0)
-						map[j] <= 1;								// new life
-					else 
-						map[j] <= 0;								// die
-				end
 			end
 		end
 	endgenerate
