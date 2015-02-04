@@ -146,7 +146,7 @@ module game_of_life( input wire clk,
 			always @(posedge switch[4]) begin				// switch[4] is the random switch
 				if (switch[5]) begin								// must in "stop" mode 
 					//tempr = {$random} % 10;
-					tempr = ((tempr << (clk == 1)) + 1 ) % 10; 
+					tempr = ((tempr << (clk == 1)) + i % 7 + map[i] + clock) % 10; 
 					if (tempr < 4)									// 40% to be 1 (random)
 						map[i] = 1;
 					else 
