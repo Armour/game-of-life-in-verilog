@@ -29,8 +29,18 @@ module game_of_life( input wire clk,
 	//output reg   [767:0] springs,
 				output wire [7:0] segment,
 				output wire led_frequency,
-				output wire led_status);
+				output wire led_status,
+				output Hsync,
+				output Vsync,
+				output [2:0] vgaRed,
+				output [2:0] vgaGreen,
+				output [1:0] vgaBlue);
 				
+	wire reset;
+	wire inside_video;
+	wire [9:0] x_position;
+	wire [8:0] y_position;
+	
 	wire	clock;					// a clock with changeable frequency
 	wire	[4:0] btn_out;			// the signal of botton after debounced
 	reg	[31:0] freq;			// used for storing the frequency
@@ -48,9 +58,20 @@ module game_of_life( input wire clk,
 	reg 	[31:0] btn1;
 	reg 	[31:0] btn2;
 	reg 	[31:0] btn3;
+	reg 	[31:0] btn4;
 	reg   [255:0] map;			// the map of "game of life"
 	reg	[8:0] i;					// iterator
 	reg 	flag = 0;				// the flag of botton[4]
+		
+	// The clock for vga
+	clock_25M frac(clk, clk25M);
+	
+	// assign the view
+	vga_display view(map, position_x, position_y, inside_video, x_position, y_position, vgaRed, vgaGreen, vgaBlue);
+	
+	// assign the vga controller
+	vga_controller vga(clk25M, reset, Hsync, Vsync, inside_video, x_position, y_position);
+
 	
 	initial begin
 		tempr = 5;
@@ -153,12 +174,9 @@ module game_of_life( input wire clk,
 			btn3 = 0;
 			position_y = position_y - 4'b1;
 		end
-		
 	end
 	
-	
 	always @(posedge clk) begin
-	
 		if (btn_out[4]) begin
 			if (flag == 0) begin						// change the status of position (x,y)
 				flag = 1;

@@ -1,23 +1,23 @@
-NET "clk" LOC = "V10";
-NET "led_frequency" LOC = "T11";
-NET "led_status" LOC = "U16";
+NET "clk" 				LOC = "V10";		// clk in spartan 6
+NET "led_frequency" 	LOC = "T11";		// led for frequency
+NET "led_status" 		LOC = "R11";		// led for present grid's status
 
-NET "switch[0]" LOC = "V8";
-NET "switch[1]" LOC = "U8";
-NET "switch[2]" LOC = "N8";
-NET "switch[3]" LOC = "M8";
-NET "switch[4]" LOC = "T10";
-NET "switch[5]" LOC = "T5";
-NET "switch[6]" LOC = "V9";
-NET "switch[7]" LOC = "T9";
+NET "switch[0]" 	LOC = "V8";			// switch part
+NET "switch[1]" 	LOC = "U8";
+NET "switch[2]" 	LOC = "N8";
+NET "switch[3]" 	LOC = "M8";
+NET "switch[4]" 	LOC = "T10";
+NET "switch[5]" 	LOC = "T5";
+NET "switch[6]" 	LOC = "V9";
+NET "switch[7]" 	LOC = "T9";
 
-NET "btn_in[0]"	LOC="D9";			// À©Õ¹°å°´¼ü
+NET "btn_in[0]"	LOC="D9";			// botton part
 NET "btn_in[1]"	LOC="C4";
 NET "btn_in[2]"	LOC="C9";
 NET "btn_in[3]"	LOC="A8";
 NET "btn_in[4]"	LOC="B8";
 
-NET "anode[0]"   	LOC="N16";
+NET "anode[0]"   	LOC="N16";			// display part
 NET "anode[1]"   	LOC="N15";
 NET "anode[2]"   	LOC="P18";
 NET "anode[3]"   	LOC="P17";
@@ -31,17 +31,14 @@ NET "segment[5]"	LOC="N14";
 NET "segment[6]"	LOC="L14";
 NET "segment[7]"	LOC="M13";
 
+NET "vgaRed[0]" 	LOC = "U7";			// vga part
+NET "vgaRed[1]" 	LOC = "V7";
+NET "vgaRed[2]"  	LOC = "N7";
+NET "vgaGreen[0]" LOC = "P8";
+NET "vgaGreen[1]" LOC = "T6";
+NET "vgaGreen[2]" LOC = "V6";
+NET "vgaBlue[0]" 	LOC = "R7";
+NET "vgaBlue[1]" 	LOC = "T7";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+NET "Hsync" 		LOC = "N6";
+NET "Vsync" 		LOC = "P7";
