@@ -1,14 +1,11 @@
 # Game of Life in Verilog
 ======
-
-Game of Life
-
-Use the seven-segment digital tubes on the Spartan-6 platform to represent the postion x, y of present grid (in decimal form 0-15). 
+<b>Use the <i>seven-segment digital tubes</i> on the Spartan-6 platform to represent the postion x, y of present grid (in decimal form 0-15).</b> 
 
 <br>
 
 
-Use BTN buttons on the Spartan-6 platform to input UP, DOWN, LEFT, RIGHT or CHANGE command. There are five bottons: 
+<b>Use <i>BTN</i> buttons on the Spartan-6 platform to input UP, DOWN, LEFT, RIGHT or CHANGE command. There are five bottons:</b> 
 * botton above means present position go up; 
 
 * botton below means present position go down; 
@@ -23,7 +20,7 @@ Use BTN buttons on the Spartan-6 platform to input UP, DOWN, LEFT, RIGHT or CHAN
 <br>
 
 
-Use SWITCHes on the Spartan-6 platform to control game mode and frequency. There are eight switches, from left to right: 
+<b>Use <i>SWITCHes</i> on the Spartan-6 platform to control game mode and frequency. There are eight switches, from left to right:</b> 
 
 * 1 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		game mode:	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	&nbsp;&nbsp;&nbsp;&nbsp;	1: stop / 0: run 
 
